@@ -51,15 +51,6 @@
             }
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
         @keyframes cardFlip {
             0% {
                 transform: rotateY(0deg);
@@ -69,6 +60,15 @@
             }
             100% {
                 transform: rotateY(0deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
             }
         }
 
@@ -138,6 +138,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             font-weight: 600;
             text-align: center;
+            min-width: 100px;
         }
 
         .score-value, .timer-value {
@@ -160,10 +161,10 @@
             margin-bottom: 30px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             animation: cardFlip 0.6s ease-out;
-            min-height: 200px;
+            min-height: 250px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             text-align: right;
         }
 
@@ -171,26 +172,28 @@
             display: inline-block;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
-            padding: 5px 15px;
+            padding: 8px 20px;
             border-radius: 20px;
             font-size: 0.85em;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             width: fit-content;
             align-self: flex-end;
         }
 
         .question-text {
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: 600;
             margin-bottom: 25px;
             line-height: 1.6;
+            min-height: 60px;
         }
 
         .options-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
         .option-btn {
@@ -200,14 +203,18 @@
             padding: 15px 20px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.95em;
             font-weight: 500;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             text-align: right;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .option-btn:hover {
+        .option-btn:hover:not(:disabled) {
             background: rgba(255, 255, 255, 0.4);
             transform: translateY(-3px);
             border-color: rgba(255, 255, 255, 0.6);
@@ -231,7 +238,7 @@
 
         .option-btn:disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.8;
         }
 
         .skip-btn {
@@ -243,14 +250,19 @@
             cursor: pointer;
             font-size: 0.95em;
             font-weight: 600;
-            margin-top: 20px;
+            margin-top: 15px;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
         }
 
-        .skip-btn:hover {
+        .skip-btn:hover:not(:disabled) {
             background: rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
+        }
+
+        .skip-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         /* Game Over Screen */
@@ -289,7 +301,7 @@
         .breakdown-item {
             display: flex;
             justify-content: space-between;
-            margin: 10px 0;
+            margin: 15px 0;
             font-size: 1.1em;
             text-align: right;
             flex-direction: row-reverse;
@@ -310,7 +322,7 @@
             box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
         }
@@ -320,7 +332,7 @@
         }
 
         .feedback-message {
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: 600;
             margin-top: 20px;
             min-height: 30px;
@@ -336,17 +348,15 @@
             color: #fee140;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
         .hidden {
             display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.3em;
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -364,9 +374,19 @@
 
             .score-timer {
                 gap: 15px;
+                flex-wrap: wrap;
             }
 
             .game-title {
+                font-size: 1.5em;
+            }
+
+            .score-box, .timer-box {
+                min-width: 80px;
+                padding: 12px 15px;
+            }
+
+            .score-value, .timer-value {
                 font-size: 1.5em;
             }
         }
@@ -376,7 +396,7 @@
     <!-- Intro Screen -->
     <div class="glass-container">
         <div id="intro-screen">
-            <h1 class="intro-title">🎮 لعبة العائلة الشيقة</h1>
+            <h1 class="intro-title">🎮 لعب�� العائلة الشيقة</h1>
             <p class="intro-subtitle">اختبر معلوماتك ومهاراتك!</p>
             <p class="intro-description">
                 انضم إلينا في تحدٍ شيق يضم 20 بطاقة تتضمن ألغازاً ذكية<br>
@@ -392,7 +412,7 @@
                 <div class="score-timer">
                     <div class="score-box">
                         <div class="card-counter">الوقت</div>
-                        <div class="timer-value" id="timer-display">30 ثانية</div>
+                        <div class="timer-value" id="timer-display">30ث</div>
                     </div>
                     <div class="score-box">
                         <div class="card-counter">البطاقة</div>
@@ -410,7 +430,7 @@
                 <span class="card-type" id="card-type">لغز</span>
                 <p class="question-text" id="question-text">جاري التحميل...</p>
                 <div class="options-container" id="options-container"></div>
-                <button class="skip-btn" onclick="skipCard()">⏭️ تخطي (راحت عليك يا شيخ)</button>
+                <button class="skip-btn" id="skip-btn" onclick="skipCard()">⏭️ تخطي (راحت عليك يا شيخ)</button>
                 <div class="feedback-message" id="feedback-message"></div>
             </div>
         </div>
@@ -443,7 +463,50 @@
     </div>
 
     <script>
-        // Game State
+        // ===== SOUND SYSTEM USING WEB AUDIO API =====
+        let audioContext = null;
+
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        function playBeep(frequency = 800, duration = 150, volume = 0.3) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.frequency.value = frequency;
+                osc.type = 'sine';
+                gain.gain.value = volume;
+
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + duration / 1000);
+            } catch (e) {
+                console.log('Audio playback not available');
+            }
+        }
+
+        function playSuccessSound() {
+            playBeep(800, 100, 0.2);
+            setTimeout(() => playBeep(1000, 100, 0.2), 100);
+        }
+
+        function playFailureSound() {
+            playBeep(400, 200, 0.2);
+        }
+
+        function playTimerSound() {
+            playBeep(600, 50, 0.1);
+        }
+
+        // ===== GAME STATE =====
         const gameState = {
             currentCard: 0,
             score: 0,
@@ -453,10 +516,11 @@
             answered: false,
             selectedOption: null,
             gameTimer: 30,
-            timerInterval: null
+            timerInterval: null,
+            gameActive: false
         };
 
-        // Cards Data - Arabic Version
+        // ===== CARDS DATA - ARABIC VERSION =====
         const cards = [
             {
                 type: "لغز",
@@ -581,56 +645,32 @@
             }
         ];
 
-        // Initialize Sound Effects
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playSound(frequency, duration, type = 'success') {
-            const now = audioContext.currentTime;
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-
-            osc.frequency.value = frequency;
-            osc.type = 'sine';
-
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-            osc.start(now);
-            osc.stop(now + duration);
-        }
-
-        function playSuccessSound() {
-            playSound(800, 0.1);
-            playSound(1000, 0.1);
-        }
-
-        function playFailureSound() {
-            playSound(300, 0.2);
-        }
-
-        function playTimerSound() {
-            playSound(400, 0.05);
-        }
-
-        // Start Game
+        // ===== START GAME =====
         function startGame() {
+            console.log('Starting game...');
+            
             document.getElementById('intro-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
+            
             gameState.currentCard = 0;
             gameState.score = 0;
             gameState.correctAnswers = 0;
             gameState.skippedCards = 0;
             gameState.answered = false;
+            gameState.gameActive = true;
+            gameState.gameTimer = 30;
+            
+            console.log('Game state initialized, loading first card...');
             loadCard();
             startTimer();
         }
 
-        // Load Card
+        // ===== LOAD CARD =====
         function loadCard() {
+            console.log('Loading card:', gameState.currentCard);
+            
             if (gameState.currentCard >= gameState.totalCards) {
+                console.log('All cards completed, ending game...');
                 endGame();
                 return;
             }
@@ -641,12 +681,15 @@
 
             const card = cards[gameState.currentCard];
 
+            // Update UI elements
             document.getElementById('card-type').textContent = card.type;
             document.getElementById('question-text').textContent = card.question;
             document.getElementById('card-counter').textContent = `${gameState.currentCard + 1}/20`;
             document.getElementById('feedback-message').textContent = '';
             document.getElementById('feedback-message').className = 'feedback-message';
+            document.getElementById('skip-btn').disabled = false;
 
+            // Clear and populate options
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
 
@@ -654,18 +697,23 @@
                 const button = document.createElement('button');
                 button.className = 'option-btn';
                 button.textContent = option;
+                button.disabled = false;
                 button.onclick = () => selectOption(index, card.correct);
                 optionsContainer.appendChild(button);
             });
+
+            console.log('Card loaded successfully:', card.question);
         }
 
-        // Select Option
+        // ===== SELECT OPTION =====
         function selectOption(selectedIndex, correctIndex) {
-            if (gameState.answered) return;
+            if (gameState.answered || !gameState.gameActive) return;
 
             gameState.answered = true;
             gameState.selectedOption = selectedIndex;
 
+            // Disable all options and skip button
+            document.getElementById('skip-btn').disabled = true;
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach((btn, index) => {
                 btn.disabled = true;
@@ -685,7 +733,7 @@
                 feedbackMessage.className = 'feedback-message feedback-correct';
                 playSuccessSound();
             } else {
-                feedbackMessage.textContent = '❌ إجابة خاطئة! حاول مرة أخرى في المرة القادمة.';
+                feedbackMessage.textContent = '❌ إجابة خاطئة! الإجابة الصحيحة هي: ' + cards[gameState.currentCard].options[correctIndex];
                 feedbackMessage.className = 'feedback-message feedback-incorrect';
                 playFailureSound();
             }
@@ -695,14 +743,19 @@
             setTimeout(() => {
                 gameState.currentCard++;
                 loadCard();
-            }, 2000);
+            }, 2500);
         }
 
-        // Skip Card
+        // ===== SKIP CARD =====
         function skipCard() {
-            if (gameState.answered) return;
+            if (gameState.answered || !gameState.gameActive) return;
 
             const card = cards[gameState.currentCard];
+
+            gameState.answered = true;
+            document.getElementById('skip-btn').disabled = true;
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
 
             if (card.isSkip) {
                 gameState.score += 50;
@@ -714,6 +767,7 @@
                 gameState.skippedCards++;
                 document.getElementById('feedback-message').textContent = '⏭️ تم تخطي البطاقة!';
                 document.getElementById('feedback-message').className = 'feedback-message';
+                playTimerSound();
             }
 
             document.getElementById('score-display').textContent = gameState.score;
@@ -724,20 +778,29 @@
             }, 1500);
         }
 
-        // Timer
+        // ===== TIMER =====
         function startTimer() {
             clearInterval(gameState.timerInterval);
+            gameState.gameTimer = 30;
+            
             gameState.timerInterval = setInterval(() => {
                 gameState.gameTimer--;
-                document.getElementById('timer-display').textContent = gameState.gameTimer + ' ثانية';
+                
+                const timerDisplay = document.getElementById('timer-display');
+                if (timerDisplay) {
+                    if (gameState.gameTimer <= 0) {
+                        timerDisplay.textContent = '0ث';
+                    } else {
+                        timerDisplay.textContent = gameState.gameTimer + 'ث';
+                    }
+                }
 
-                if (gameState.gameTimer <= 5) {
+                if (gameState.gameTimer <= 5 && gameState.gameTimer > 0) {
                     playTimerSound();
                 }
 
                 if (gameState.gameTimer <= 0) {
                     clearInterval(gameState.timerInterval);
-                    gameState.gameTimer = 30;
                     if (!gameState.answered) {
                         skipCard();
                     }
@@ -746,13 +809,16 @@
             }, 1000);
         }
 
-        // End Game
+        // ===== END GAME =====
         function endGame() {
             clearInterval(gameState.timerInterval);
+            gameState.gameActive = false;
+
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('game-over').classList.remove('hidden');
 
-            const accuracy = Math.round((gameState.correctAnswers / (gameState.totalCards - gameState.skippedCards)) * 100) || 0;
+            const answeredQuestions = gameState.totalCards - gameState.skippedCards;
+            const accuracy = answeredQuestions > 0 ? Math.round((gameState.correctAnswers / answeredQuestions) * 100) : 0;
 
             document.getElementById('final-score').textContent = gameState.score;
             document.getElementById('total-questions').textContent = gameState.totalCards;
@@ -761,20 +827,24 @@
             document.getElementById('accuracy').textContent = accuracy + '%';
 
             playSuccessSound();
+            console.log('Game ended. Final Score:', gameState.score);
         }
 
-        // Restart Game
+        // ===== RESTART GAME =====
         function restartGame() {
+            console.log('Restarting game...');
             document.getElementById('game-over').classList.add('hidden');
             document.getElementById('intro-screen').classList.remove('hidden');
-            startGame();
         }
 
-        // Go Home
+        // ===== GO HOME =====
         function goToHome() {
             document.getElementById('game-over').classList.add('hidden');
             document.getElementById('intro-screen').classList.remove('hidden');
         }
+
+        // Ensure DOM is ready before anything runs
+        console.log('Game script loaded successfully');
     </script>
 </body>
 </html>
