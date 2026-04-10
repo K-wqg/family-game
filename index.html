@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة العائلة - تحدي 20 بطاقة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', 'Droid Arabic Kufi', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Glassmorphism Container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes cardFlip {
+            0% {
+                transform: rotateY(0deg);
+            }
+            50% {
+                transform: rotateY(90deg);
+            }
+            100% {
+                transform: rotateY(0deg);
+            }
+        }
+
+        /* Intro Screen */
+        #intro-screen {
+            text-align: center;
+            color: white;
+        }
+
+        .intro-title {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .intro-subtitle {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .intro-description {
+            font-size: 1em;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        /* Game Screen */
+        #game-screen {
+            display: none;
+            color: white;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            flex-direction: row-reverse;
+        }
+
+        .game-title {
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .score-timer {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-direction: row-reverse;
+        }
+
+        .score-box, .timer-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .score-value, .timer-value {
+            font-size: 1.8em;
+            color: #f5576c;
+            margin-top: 5px;
+        }
+
+        .card-counter {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Card Display */
+        .card-container {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: cardFlip 0.6s ease-out;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: right;
+        }
+
+        .card-type {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            width: fit-content;
+            align-self: flex-end;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-align: right;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-color: #f5576c;
+            transform: scale(1.05);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-color: #00f2fe;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            border-color: #fee140;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Game Over Screen */
+        #game-over {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .game-over-title {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-score {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #4facfe;
+        }
+
+        .score-breakdown {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+            text-align: right;
+            flex-direction: row-reverse;
+        }
+
+        /* Buttons */
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .feedback-message {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 20px;
+            min-height: 30px;
+            animation: fadeIn 0.5s ease-out;
+            text-align: center;
+        }
+
+        .feedback-correct {
+            color: #4facfe;
+        }
+
+        .feedback-incorrect {
+            color: #fee140;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .glass-container {
+                padding: 25px;
+            }
+
+            .intro-title {
+                font-size: 2.5em;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .score-timer {
+                gap: 15px;
+            }
+
+            .game-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div class="glass-container">
+        <div id="intro-screen">
+            <h1 class="intro-title">🎮 لعبة العائلة الشيقة</h1>
+            <p class="intro-subtitle">اختبر معلوماتك ومهاراتك!</p>
+            <p class="intro-description">
+                انضم إلينا في تحدٍ شيق يضم 20 بطاقة تتضمن ألغازاً ذكية<br>
+                وتحديات بدنية ومعلومات دينية رائعة. أجب على الأسئلة بشكل صحيح<br>
+                لكسب النقاط وأصبح بطل تحدي العائلة الأول!
+            </p>
+            <button onclick="startGame()">🚀 ابدأ اللعبة</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen">
+            <div class="game-header">
+                <div class="score-timer">
+                    <div class="score-box">
+                        <div class="card-counter">الوقت</div>
+                        <div class="timer-value" id="timer-display">30 ثانية</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="card-counter">البطاقة</div>
+                        <div class="score-value" id="card-counter">1/20</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="card-counter">النقاط</div>
+                        <div class="score-value" id="score-display">0</div>
+                    </div>
+                </div>
+                <h2 class="game-title">🎯 تحدي العائلة</h2>
+            </div>
+
+            <div class="card-container">
+                <span class="card-type" id="card-type">لغز</span>
+                <p class="question-text" id="question-text">جاري التحميل...</p>
+                <div class="options-container" id="options-container"></div>
+                <button class="skip-btn" onclick="skipCard()">⏭️ تخطي (راحت عليك يا شيخ)</button>
+                <div class="feedback-message" id="feedback-message"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over">
+            <h1 class="game-over-title">🎉 انتهت اللعبة! 🎉</h1>
+            <div class="final-score">نقاطك النهائية: <span id="final-score">0</span></div>
+            <div class="score-breakdown">
+                <div class="breakdown-item">
+                    <span id="total-questions">20</span>
+                    <span>إجمالي الأسئلة:</span>
+                </div>
+                <div class="breakdown-item">
+                    <span id="correct-answers">0</span>
+                    <span>الإجابات الصحيحة:</span>
+                </div>
+                <div class="breakdown-item">
+                    <span id="skipped-cards">0</span>
+                    <span>البطاقات المتخطاة:</span>
+                </div>
+                <div class="breakdown-item">
+                    <span id="accuracy">0%</span>
+                    <span>دقة الإجابة:</span>
+                </div>
+            </div>
+            <button onclick="restartGame()">🔄 العب مرة أخرى</button>
+            <button onclick="goToHome()">🏠 الصفحة الرئيسية</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            currentCard: 0,
+            score: 0,
+            correctAnswers: 0,
+            skippedCards: 0,
+            totalCards: 20,
+            answered: false,
+            selectedOption: null,
+            gameTimer: 30,
+            timerInterval: null
+        };
+
+        // Cards Data - Arabic Version
+        const cards = [
+            {
+                type: "لغز",
+                question: "أمتلك مدناً لكن بلا منازل، وغابات لكن بلا أشجار، وماء لكن بلا أسماك. ما أنا؟",
+                options: ["خريطة", "حلم", "لوحة فنية", "جهاز كمبيوتر"],
+                correct: 0
+            },
+            {
+                type: "لغز",
+                question: "ما الذي يزداد بلل كلما جف؟",
+                options: ["منشفة", "إسفنجة", "أرضية", "قطعة قماش"],
+                correct: 0
+            },
+            {
+                type: "تحدي بدني",
+                question: "كم عدد تمارين الضغط التي يمكنك عملها في دقيقة واحدة؟",
+                options: ["1-10", "11-25", "26-50", "أكثر من 50"],
+                correct: 1
+            },
+            {
+                type: "معلومة دينية",
+                question: "كم عدد أركان الإسلام الخمسة؟",
+                options: ["3", "4", "5", "6"],
+                correct: 2
+            },
+            {
+                type: "لغز",
+                question: "أتكلم بدون فم وأسمع بدون آذان، ليس لي جسد لكن أحيا مع الريح. من أنا؟",
+                options: ["صدى صوت", "رعد", "أجراس الريح", "شبح"],
+                correct: 0
+            },
+            {
+                type: "تحدي بدني",
+                question: "قف على رجل واحدة لمدة 30 ثانية. هل يمكنك فعل ذلك؟",
+                options: ["نعم بسهولة", "نعم بصعوبة", "لا سقطت", "لم أحاول"],
+                correct: 0
+            },
+            {
+                type: "معلومة دينية",
+                question: "في أي شهر يصوم المسلمون شهر رمضان؟",
+                options: ["ذو الحجة", "محرم", "رمضان", "شعبان"],
+                correct: 2
+            },
+            {
+                type: "لغز",
+                question: "أكون طويل عندما أكون صغير وقصير عندما أكون كبير. من أنا؟",
+                options: ["شجرة", "شمعة", "إنسان", "زرافة"],
+                correct: 1
+            },
+            {
+                type: "تحدي بدني",
+                question: "حاول لمس أصابع رجليك بدون ثني الركبتين. هل يمكنك عمل ذلك؟",
+                options: ["نعم بسهولة", "نعم بصعوبة", "لا", "أعاني من عدم المرونة"],
+                correct: 0
+            },
+            {
+                type: "معلومة دينية",
+                question: "ما هي التحية الإسلامية؟",
+                options: ["ناماسته", "السلام عليكم ورحمة الله وبركاته", "مرحباً", "شالوم"],
+                correct: 1
+            },
+            {
+                type: "لغز",
+                question: "لي رأس وذيل لكن ليس لي جسد. ما أنا؟",
+                options: ["عملة معدنية", "مذنب", "طائرة ورقية", "سمكة"],
+                correct: 0
+            },
+            {
+                type: "تحدي بدني",
+                question: "قم بـ 5 قفزات متتالية. كم منها أكملت؟",
+                options: ["جميع الـ 5", "3-4", "1-2", "لم أكمل أياً منها"],
+                correct: 0
+            },
+            {
+                type: "معلومة دينية",
+                question: "ما هو أقدس شهر في الإسلام؟",
+                options: ["ذو الحجة", "محرم", "رمضان", "رجب"],
+                correct: 2
+            },
+            {
+                type: "لغز",
+                question: "كلما أخذت أكثر، كلما تركت أكثر. ما أنا؟",
+                options: ["خطوات", "أموال", "طعام", "وقت"],
+                correct: 0
+            },
+            {
+                type: "تحدي بدني",
+                question: "ادور حول نفسك 10 مرات. كم مرة دُرت؟",
+                options: ["لم أشعر بدوار", "دوار قليل", "دوار كبير", "سقطت!"],
+                correct: 1
+            },
+            {
+                type: "معلومة دينية",
+                question: "كم عدد مرات الصلاة المفروضة يومياً على المسلم؟",
+                options: ["3", "4", "5", "6"],
+                correct: 2
+            },
+            {
+                type: "لغز",
+                question: "لي مفاتيح لكن بدون أقفال، لي مسافة لكن بدون غرفة، يمكنك الدخول لكن لا تستطيع الذهاب داخلاً. ما أنا؟",
+                options: ["لوحة مفاتيح", "بيانو", "باب", "نافذة"],
+                correct: 0
+            },
+            {
+                type: "تحدي بدني",
+                question: "كم مرة يمكنك القيام بتمرين اللوح الخشبي (Plank)؟",
+                options: ["أقل من 10 ثوان", "10-30 ثانية", "30-60 ثانية", "أكثر من 60 ثانية"],
+                correct: 1
+            },
+            {
+                type: "معلومة دينية",
+                question: "ما هو أول ركن من أركان الإسلام؟",
+                options: ["الحج", "الشهادة", "الصلاة", "الزكاة"],
+                correct: 1
+            },
+            {
+                type: "تخطي",
+                question: "🎫 راحت عليك يا شيخ - تخطي هذه البطاقة واكسب 50 نقطة مكافأة!",
+                options: ["تخطي", "تخطي", "تخطي", "تخطي"],
+                correct: 0,
+                isSkip: true
+            }
+        ];
+
+        // Initialize Sound Effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(frequency, duration, type = 'success') {
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.value = frequency;
+            osc.type = 'sine';
+
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+            osc.start(now);
+            osc.stop(now + duration);
+        }
+
+        function playSuccessSound() {
+            playSound(800, 0.1);
+            playSound(1000, 0.1);
+        }
+
+        function playFailureSound() {
+            playSound(300, 0.2);
+        }
+
+        function playTimerSound() {
+            playSound(400, 0.05);
+        }
+
+        // Start Game
+        function startGame() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            gameState.currentCard = 0;
+            gameState.score = 0;
+            gameState.correctAnswers = 0;
+            gameState.skippedCards = 0;
+            gameState.answered = false;
+            loadCard();
+            startTimer();
+        }
+
+        // Load Card
+        function loadCard() {
+            if (gameState.currentCard >= gameState.totalCards) {
+                endGame();
+                return;
+            }
+
+            gameState.answered = false;
+            gameState.selectedOption = null;
+            gameState.gameTimer = 30;
+
+            const card = cards[gameState.currentCard];
+
+            document.getElementById('card-type').textContent = card.type;
+            document.getElementById('question-text').textContent = card.question;
+            document.getElementById('card-counter').textContent = `${gameState.currentCard + 1}/20`;
+            document.getElementById('feedback-message').textContent = '';
+            document.getElementById('feedback-message').className = 'feedback-message';
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            card.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectOption(index, card.correct);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Select Option
+        function selectOption(selectedIndex, correctIndex) {
+            if (gameState.answered) return;
+
+            gameState.answered = true;
+            gameState.selectedOption = selectedIndex;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === correctIndex) {
+                    btn.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (selectedIndex === correctIndex) {
+                gameState.score += 10;
+                gameState.correctAnswers++;
+                feedbackMessage.textContent = '✅ إجابة صحيحة! +10 نقاط';
+                feedbackMessage.className = 'feedback-message feedback-correct';
+                playSuccessSound();
+            } else {
+                feedbackMessage.textContent = '❌ إجابة خاطئة! حاول مرة أخرى في المرة القادمة.';
+                feedbackMessage.className = 'feedback-message feedback-incorrect';
+                playFailureSound();
+            }
+
+            document.getElementById('score-display').textContent = gameState.score;
+
+            setTimeout(() => {
+                gameState.currentCard++;
+                loadCard();
+            }, 2000);
+        }
+
+        // Skip Card
+        function skipCard() {
+            if (gameState.answered) return;
+
+            const card = cards[gameState.currentCard];
+
+            if (card.isSkip) {
+                gameState.score += 50;
+                gameState.skippedCards++;
+                document.getElementById('feedback-message').textContent = '🎫 بطاقة تخطي! +50 نقطة مكافأة!';
+                document.getElementById('feedback-message').className = 'feedback-message feedback-correct';
+                playSuccessSound();
+            } else {
+                gameState.skippedCards++;
+                document.getElementById('feedback-message').textContent = '⏭️ تم تخطي البطاقة!';
+                document.getElementById('feedback-message').className = 'feedback-message';
+            }
+
+            document.getElementById('score-display').textContent = gameState.score;
+
+            setTimeout(() => {
+                gameState.currentCard++;
+                loadCard();
+            }, 1500);
+        }
+
+        // Timer
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                gameState.gameTimer--;
+                document.getElementById('timer-display').textContent = gameState.gameTimer + ' ثانية';
+
+                if (gameState.gameTimer <= 5) {
+                    playTimerSound();
+                }
+
+                if (gameState.gameTimer <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    gameState.gameTimer = 30;
+                    if (!gameState.answered) {
+                        skipCard();
+                    }
+                    startTimer();
+                }
+            }, 1000);
+        }
+
+        // End Game
+        function endGame() {
+            clearInterval(gameState.timerInterval);
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('game-over').classList.remove('hidden');
+
+            const accuracy = Math.round((gameState.correctAnswers / (gameState.totalCards - gameState.skippedCards)) * 100) || 0;
+
+            document.getElementById('final-score').textContent = gameState.score;
+            document.getElementById('total-questions').textContent = gameState.totalCards;
+            document.getElementById('correct-answers').textContent = gameState.correctAnswers;
+            document.getElementById('skipped-cards').textContent = gameState.skippedCards;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            playSuccessSound();
+        }
+
+        // Restart Game
+        function restartGame() {
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+            startGame();
+        }
+
+        // Go Home
+        function goToHome() {
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
